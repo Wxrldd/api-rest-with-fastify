@@ -1,20 +1,21 @@
 import Fastify from "fastify";
-import { registerPostRoutes } from "./controllers/post.js";
-import { registerAuthRoutes } from "./controllers/auth.js";
-import { registerAuthMiddleware} from "./middlewares/auth.js";
 import fastifyAuth from "@fastify/auth";
 import FastifySwagger from '@fastify/swagger'
 
 import FastifySwaggerUI from '@fastify/swagger-ui'
 import dotenv from "dotenv";
-import {registerCategoryRoutes} from "./controllers/category.js";
-import {registerErrorMiddleware} from "./middlewares/error.js";
+
+dotenv.config({ path: process.env.NODE_ENV == 'production' ? process.env.DOTENV_CONFIG_PATH : '.env' });
+import { registerPostRoutes } from "./controllers/post.js";
+import { registerAuthRoutes } from "./controllers/auth.js";
+import { registerAuthMiddleware } from "./middlewares/auth.js";
+import { registerCategoryRoutes } from "./controllers/category.js";
+import { registerErrorMiddleware } from "./middlewares/error.js";
 
 // const fastify = Fastify({
 //   logger: true
 // })
 
-dotenv.config();
 
 const logger = {
   transport: {
@@ -29,34 +30,34 @@ const logger = {
 };
 
 const fastify = Fastify({
-    logger,
-    ajv: {
-        customOptions: {
-            removeAdditional: "all"
-        }
+  logger,
+  ajv: {
+    customOptions: {
+      removeAdditional: "all"
     }
+  }
 });
 
 await fastify.register(fastifyAuth);
 await fastify.register(FastifySwagger, {
-    openapi: {
-        components:{
-            securitySchemes: {
-                token: {
-                    type: "http",
-                    scheme: "bearer",
-                    bearerFormat: "JWT"
-                }
-            }
+  openapi: {
+    components: {
+      securitySchemes: {
+        token: {
+          type: "http",
+          scheme: "bearer",
+          bearerFormat: "JWT"
         }
+      }
     }
+  }
 });
 
 await fastify.register(FastifySwaggerUI, {
-    routePrefix: '/documentation',
-    uiConfig: {
-        docExpansion: 'list'
-    }
+  routePrefix: '/documentation',
+  uiConfig: {
+    docExpansion: 'list'
+  }
 });
 
 //Utilisation de la route
@@ -67,14 +68,14 @@ registerCategoryRoutes(fastify);
 registerErrorMiddleware(fastify);
 
 fastify.get('/', async function handler(request, reply) {
-  return { hello: 'world'}
+  return { hello: 'world' }
 })
 
 try {
-await fastify.listen({ 
-  port: process.env.PORT || 3000,
-  host: process.env.HOST || 'localhost' 
-})
+  await fastify.listen({
+    port: process.env.PORT || 3000,
+    host: process.env.HOST || 'localhost'
+  })
 
 } catch (err) {
   fastify.log.error(err);
