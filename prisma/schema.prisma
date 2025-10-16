@@ -23,6 +23,9 @@ model posts {
   categoryId Int
   author     users      @relation(fields: [authorId], references: [id])
   category   categories @relation(fields: [categoryId], references: [id])
+
+  @@index([authorId], map: "posts_authorId_fkey")
+  @@index([categoryId], map: "posts_categoryId_fkey")
 }
 
 model categories {
